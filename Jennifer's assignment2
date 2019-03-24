@@ -1,0 +1,85 @@
+Assignment2: Caching the Inverse of a Matrix###
+
+# Function one: "makeCacheMatrix" 
+# creates "a special matrix object", it doesn't calculate the inverse matrix but provides some useful
+#functions to get, the result, set a new matrix or even force a result to cache.
+
+# Function two: "cacheSolve"
+# computes the inverse of the matrix, but it first checks the cache to see if it's already been calculated or not
+# if yes, it just shows the result with the following message: "getting cached data"
+
+##---------------- How does it work?
+
+#1- creat a matrix by: 
+# my_matrix <- makeCacheMatrix(x)
+
+#2- calculate its inverse by:
+# cacheSolve(my_matrix)
+
+
+
+#### FUNCTION ONE
+
+makeCacheMatrix <- function(my_matrix = matrix()) {
+        m <- NULL  # to clear the old inverse from cache
+        set <- function(y) { #if TRUE
+                my_matrix <<- y    # this function let you change the input without defining a new variable
+                m <<- NULL # and clears the old inverse from the cache 
+        }
+        
+        get <- function() my_matrix # this function shows the current input
+        
+        setInverse <- function(inverse) m <<- inverse  # you can force an inverse without changing input
+        
+        getInverse <- function() m # this function shows the cached result
+        
+        
+        list(set = set, get = get,  # a named list to make it easier to recall a function with $ like something$set
+             setInverse = setInverse,
+             getInverse = getInverse)
+}
+
+
+
+#### FUNCTION TWO
+
+
+cacheSolve <- function(x) {
+        m <- my_matrix$getInverse() # this line fetches the cached and save it to m
+        if(!is.null(m)) { # TRUE if m has a value, (not empty), it means you the inverse has been already calculated
+                message("getting cached data")   
+                return(m)  # just shows the result from (x$getInverse)
+        }
+        # if previous condition is FALSE, it means the cache is empty, so calculation is needed
+        
+        data <- my_matrix$get()  # gets the matrix
+        m <- solve(data) # calculate its inverse
+        my_matrix$setInverse(m)  # feed the result into the cache 
+        m                # shows the inverse
+}
+
+
+
+##--- AN EXAMPLE
+
+# input is a 3X3 matrix
+
+my_matrix <- makeCacheMatrix(matrix(c(1,0,5,3,5,2,7,8,12), 3,3))
+
+# calculating its inverse
+
+cacheSolve(my_matrix)
+
+
+# Testing the result, multiplying a matrix by its inverse results in an identity matrix
+# %*% -> matrix multiplication
+
+round(my_matrix$get() %*% my_matrix$getInverse())
+
+#rounding the result shows an IDENTITY 3X3 Matrix as expected
+
+# > round(my_matrix$get() %*% my_matrix$getInverse())
+#      [,1] [,2] [,3]
+# [1,]    1    0    0
+# [2,]    0    1    0
+# [3,]    0    0    1
